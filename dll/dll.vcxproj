@@ -136,12 +136,14 @@ copy /Y "$(SolutionDir)x64\Debug\*lib" "P:\lib"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="gracz.h" />
     <ClInclude Include="klasa.h" />
     <ClInclude Include="APi.h" />
     <ClInclude Include="MaszynaStanow.h" />
     <ClInclude Include="state.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="gracz.cpp" />
     <ClCompile Include="klasa.cpp" />
     <ClCompile Include="MaszynaStanow.cpp" />
     <ClCompile Include="state.cpp" />
