@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-using namespace std;
+#include "tlo.h"
+enum class Stan { IDLE, BIEG, SKOK, ATAK_1 };
 class __declspec(dllexport) gracz
 {
 private:
@@ -8,7 +9,7 @@ private:
 	int maxHp;
 	int Hp;
 	int lifes;
-	string name;
+	std::string name;
 	sf::Sprite sprite;
 	sf::Texture texture;
 	sf::Clock animationClock;
@@ -20,13 +21,20 @@ private:
 	bool czygleba = false;
 	float groundLevel = 900.f;
 	bool ruch = false;
+	float mapaLimit = 0.f;
+	Stan obecnyStan = Stan::IDLE;
+	sf::Clock attackClock;
+	float attackDuration = 0.4f;
+	int AttackFrame;
+	sf::Image img;
 public:
-	gracz(string name, int maxHp, int lifes, string fpath);
+	gracz(std:: string name, int maxHp, int lifes, std::string fpath);
 	void takeDmg(int x);
 	void printStatus() const;
 	void update();
 	void handleInput();
 	void draw(sf::RenderWindow& window);
 	sf::Vector2f getPosition();
+	void ustawBariere(const tlo& mapa);
 };
 

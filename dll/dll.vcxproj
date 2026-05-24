@@ -141,12 +141,14 @@ copy /Y "$(SolutionDir)x64\Debug\*lib" "P:\lib"</Command>
     <ClInclude Include="APi.h" />
     <ClInclude Include="MaszynaStanow.h" />
     <ClInclude Include="state.h" />
+    <ClInclude Include="tlo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gracz.cpp" />
     <ClCompile Include="klasa.cpp" />
     <ClCompile Include="MaszynaStanow.cpp" />
     <ClCompile Include="state.cpp" />
+    <ClCompile Include="tlo.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

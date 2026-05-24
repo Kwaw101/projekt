@@ -6,33 +6,30 @@
 #include "MaszynaStanow.h"
 #include "state.h"
 #include "gracz.h"
+#include "tlo.h"
 #include <iostream>
 
 int main()
 {
 	// ustawienie okna
 	sf::RenderWindow window(sf::VideoMode(1920, 1080), "Moja gierka"); //sf::Style::Fullscreen
-	sf::RectangleShape ground(sf::Vector2f(1920.f, 500.f));
 	window.setFramerateLimit(60);
+	//background
+	tlo mapa1;
+	mapa1.seg("P:\\projekt\\Projekt\\Projekt\\background2.jpg");
+	mapa1.seg("P:\\projekt\\Projekt\\Projekt\\background.jpg");
+	//pod³o¿e
+	sf::RectangleShape ground(sf::Vector2f(mapa1.getDlugosc(), 500.f));
 	ground.setFillColor(sf::Color::Black);
 	ground.setPosition(0.f, 1000.f);
-	sf::View camera(sf::FloatRect(0, 0, 1920, 1080));
-	//background
-	sf::Texture teksturabackground;
-	if (!teksturabackground.loadFromFile("P:\\projekt\\Projekt\\Projekt\\background.jpg")) {
-		cout << "DEBUG: Nie udalo sie zaladowac background.jpg!" << endl;
-		system("pause");
-	}
-	sf::Sprite background;
-	background.setTexture(teksturabackground);
-	background.setScale(
-		1920.f / background.getLocalBounds().width,
-		1080.f / background.getLocalBounds().height
-	);
 	//inicjalizacja gracza
 	gracz player("Kiryu", 100, 3, "P:\\projekt\\Projekt\\Projekt\\kiryu.png");
+	player.ustawBariere(mapa1);
+	sf::View camera(sf::FloatRect(0, 0, 1920, 1080));
 	float velocity = 5.f;
 	float gravity = 0.5f;
+
+
 	//MaszynaStanow machine;
 	//sf::Clock clock;
 
@@ -40,7 +37,6 @@ int main()
     //machine.addState(std::make_unique<MenuState>());
 
     while (window.isOpen()) {
-			//sf::FloatRect granica = player.getGlobalBounds();
 			sf::Event event;
 			while (window.pollEvent(event))
 			{
@@ -51,14 +47,19 @@ int main()
 			player.update();
 
 			float cameraX = player.getPosition().x;
-			if (cameraX < 960.f) cameraX = 960.f;
+			if (cameraX < 960.f) 
+				cameraX = 960.f;
+
+			if (cameraX > mapa1.getDlugosc() - 960.f) 
+				cameraX = mapa1.getDlugosc() - 960.f;
 
 			camera.setCenter(cameraX, 540);
+			ground.setPosition(cameraX - 960.f, 1000.f);
 
 			window.clear();
 			window.setView(camera);
 
-			window.draw(background);
+			mapa1.draw(window);
 			window.draw(ground);
 			player.draw(window);
 			window.display();
