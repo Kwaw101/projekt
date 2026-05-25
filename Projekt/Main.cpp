@@ -7,6 +7,7 @@
 #include "state.h"
 #include "gracz.h"
 #include "tlo.h"
+#include "bezdomny.h"
 #include <iostream>
 
 int main()
@@ -23,12 +24,13 @@ int main()
 	ground.setFillColor(sf::Color::Black);
 	ground.setPosition(0.f, 1000.f);
 	//inicjalizacja gracza
-	gracz player("Kiryu", 100, 3, "P:\\projekt\\Projekt\\Projekt\\kiryu.png");
+	gracz player("Kiryu", 100, 3, "P:\\projekt\\Projekt\\Projekt\\kiryu.png", "P:\\projekt\\Projekt\\Projekt\\kiryuatak.png");
 	player.ustawBariere(mapa1);
 	sf::View camera(sf::FloatRect(0, 0, 1920, 1080));
 	float velocity = 5.f;
 	float gravity = 0.5f;
-
+	// respienie nowych przeciwników
+	bezdomny menel("P:\\projekt\\Projekt\\Projekt\\homeless_1\\Idle_2.png", sf::Vector2f(1300.f, 975.f));
 
 	//MaszynaStanow machine;
 	//sf::Clock clock;
@@ -44,7 +46,15 @@ int main()
 					window.close();
 			}
 			player.handleInput();
+			player.moveIfPossible(player.getMovement(), menel.getBounds());
 			player.update();
+			menel.update();
+
+			if (player.isAttacking()) { 
+				if (player.getHitbox().intersects(menel.getBounds())) {
+					menel.takeDmg(10.f);
+				}
+			}
 
 			float cameraX = player.getPosition().x;
 			if (cameraX < 960.f) 
@@ -62,6 +72,7 @@ int main()
 			mapa1.draw(window);
 			window.draw(ground);
 			player.draw(window);
+			menel.draw(window);
 			window.display();
 		}
     return 0;
