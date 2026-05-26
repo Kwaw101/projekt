@@ -14,12 +14,11 @@ gracz::gracz(std::string name, int hp, int lifes, std::string fpath, std::string
 		sprite.setOrigin(50.f, 100.f);
 		sprite.setPosition(200.f, 900.f);
 	}
-	sf::Image img;
-	if (img.loadFromFile(fpathAtak)) {
-		img.createMaskFromColor(sf::Color::White);
-		textureAtak.loadFromImage(img);
-		textureAtak.setSmooth(false);
+	if (!textureAtak.loadFromFile(fpathAtak)) {
+		// Tutaj warto dodaæ loga, ¿eby wiedzieæ, czy œcie¿ka jest poprawna
+		std::cout << "Blad wczytywania: " << fpathAtak << std::endl;
 	}
+	textureAtak.setSmooth(false);
 }
 void gracz::takeDmg(int dmg) {
 	if (Hp > dmg)
@@ -50,17 +49,28 @@ void gracz::update() {
 		czygleba = true;
 		velocity = 0.f;
 	}
-
-	if (obecnyStan == Stan::ATAK_1) {
+	if (obecnyStan == Stan::KUCANIE) {
 		sprite.setTexture(textureAtak);
-		float skalaAtaku = 1.25f;
+		ramka.top = 80;
+		ramka.width = 140;
+		ramka.height = 170;
+		ramka.left = 40;
+		sprite.setTextureRect(ramka);
+		sprite.setOrigin(70.f, 120.f);
+
+		float skalaAtaku = 1.1f;
 		if (sprite.getScale().x < 0) sprite.setScale(-skalaAtaku, skalaAtaku);
 		else sprite.setScale(skalaAtaku, skalaAtaku);
+	}
+
+	else if (obecnyStan == Stan::ATAK_1) {
+		sprite.setTexture(textureAtak);
+
 		if (attackClock.getElapsedTime().asSeconds() > 0.2f) {
 			AttackFrame++;
 			if (AttackFrame >= 2) {
 				if (combo) {
-					obecnyStan = Stan::ATAK_2; 
+					obecnyStan = Stan::ATAK_2;
 					AttackFrame = 0;
 					combo = false;
 				}
@@ -71,13 +81,28 @@ void gracz::update() {
 			}
 			attackClock.restart();
 		}
-		ramka.top = 295;
-		ramka.left = 60;
-		ramka.width = 200;
-		ramka.height = 225;
-		ramka.left = AttackFrame * 250;
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+			ramka.top = 80;
+			ramka.width = 215;
+			ramka.height = 170;
+			ramka.left = 40 + (AttackFrame * 225); 
+			sprite.setOrigin(90.f, 120.f);
+		}
+		else {
+			ramka.top = 295;
+			ramka.left = 60;
+			ramka.width = 200;
+			ramka.height = 225;
+			ramka.left = (AttackFrame * 250);
+			sprite.setOrigin(100.f, 170.f);
+		}
+
+		float skalaAtaku = 1.25f;
+		if (sprite.getScale().x < 0) sprite.setScale(-skalaAtaku, skalaAtaku);
+		else sprite.setScale(skalaAtaku, skalaAtaku);
+
 		sprite.setTextureRect(ramka);
-		sprite.setOrigin(100.f, 170.f);
 	}
 	else if (obecnyStan == Stan::ATAK_2) {
 		sprite.setTexture(textureAtak);
@@ -216,6 +241,21 @@ void gracz::handleInput() {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && czygleba) {
 		velocity = jumpSpeed;
 		czygleba = false;
+	}
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && czygleba) {
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::J)) {
+			obecnyStan = Stan::ATAK_1;
+			attackClock.restart();
+			AttackFrame = 0;
+		}
+		else {
+			obecnyStan = Stan::KUCANIE;
+		}
+		return;
+	}
+	else if (obecnyStan == Stan::KUCANIE) {
+		obecnyStan = Stan::IDLE;
 	}
 
 	lastMovement = movement;

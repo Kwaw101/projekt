@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "tlo.h"
-enum class Stan { IDLE, BIEG, SKOK, ATAK_1, ATAK_2, ATAK_3 };
+enum class Stan { IDLE, BIEG, SKOK, ATAK_1, ATAK_2, ATAK_3, KUCANIE };
 class __declspec(dllexport) gracz
 {
 private:
