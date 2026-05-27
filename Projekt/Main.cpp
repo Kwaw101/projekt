@@ -17,8 +17,10 @@ int main()
 	window.setFramerateLimit(60);
 	//background
 	tlo mapa1;
-	mapa1.seg("P:\\projekt\\Projekt\\Projekt\\background2.jpg");
-	mapa1.seg("P:\\projekt\\Projekt\\Projekt\\background.jpg");
+	mapa1.seg("P:\\projekt\\Projekt\\Projekt\\begin.jpg");
+	tlo mapa2;
+	mapa2.seg("P:\\projekt\\Projekt\\Projekt\\background2.jpg");
+	mapa2.seg("P:\\projekt\\Projekt\\Projekt\\background.jpg");
 	//pod³o¿e
 	sf::RectangleShape ground(sf::Vector2f(mapa1.getDlugosc(), 500.f));
 	ground.setFillColor(sf::Color::Black);

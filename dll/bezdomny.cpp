@@ -42,7 +42,7 @@ sf::FloatRect bezdomny::getBounds() const {
     sf::FloatRect fullBounds = sprite.getGlobalBounds();
 
     float off_left = 180.f;
-    float off_right = 135.f;
+    float off_right = 120.f;
 
     return sf::FloatRect(fullBounds.left + off_left,
         fullBounds.top,
