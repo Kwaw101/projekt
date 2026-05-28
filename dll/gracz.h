@@ -29,6 +29,7 @@ private:
 	int AttackFrame;
 	bool combo = false;
 	sf::Vector2f lastMovement;
+	bool attackDamageDealt = false;
 public:
 	gracz(std::string name, int maxHp, int lifes, std::string fpath, std::string fpathAtak);
 	void takeDmg(int x);
@@ -43,4 +44,6 @@ public:
 	void moveIfPossible(sf::Vector2f velocity, const sf::FloatRect& obstacle);
 	bool isAttacking() const;
 	sf::Vector2f getMovement() const;
+	bool hasDealtDamage() const { return attackDamageDealt; }
+	void setDamageDealt(bool status) { attackDamageDealt = status; }
 };

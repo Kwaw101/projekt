@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 gracz::gracz(std::string name, int hp, int lifes, std::string fpath, std::string fpathAtak) :
-	name(name), maxHp(hp), lifes(lifes), Hp(hp), currentFrame(0), AttackFrame(0) {
+	name(name), maxHp(hp), lifes(lifes), Hp(hp), currentFrame(0), AttackFrame(0), attackDamageDealt(false) {
 	if (texture.loadFromFile(fpath)) {
 		texture.setSmooth(false);
 		sprite.setTexture(texture);
@@ -15,32 +15,35 @@ gracz::gracz(std::string name, int hp, int lifes, std::string fpath, std::string
 		sprite.setPosition(200.f, 900.f);
 	}
 	if (!textureAtak.loadFromFile(fpathAtak)) {
-		// Tutaj warto dodaæ loga, ¿eby wiedzieæ, czy œcie¿ka jest poprawna
 		std::cout << "Blad wczytywania: " << fpathAtak << std::endl;
 	}
 	textureAtak.setSmooth(false);
 }
+
 void gracz::takeDmg(int dmg) {
 	if (Hp > dmg)
 		Hp -= dmg;
-	else
-	{
+	else {
 		Hp = maxHp;
 		lifes--;
-	}	}
+	}
+}
+
 void gracz::draw(sf::RenderWindow& window) {
 	window.draw(sprite);
 }
+
 void gracz::printStatus() const {
 	std::cout << name << Hp << lifes;
 }
-sf::Vector2f gracz::getPosition() { 
+
+sf::Vector2f gracz::getPosition() {
 	return sprite.getPosition();
 }
+
 void gracz::update() {
 	if (!czygleba) velocity += gravity;
 	else velocity = 0.f;
-
 
 	sprite.move(0, velocity);
 
@@ -49,6 +52,7 @@ void gracz::update() {
 		czygleba = true;
 		velocity = 0.f;
 	}
+
 	if (obecnyStan == Stan::KUCANIE) {
 		sprite.setTexture(textureAtak);
 		ramka.top = 80;
@@ -62,7 +66,6 @@ void gracz::update() {
 		if (sprite.getScale().x < 0) sprite.setScale(-skalaAtaku, skalaAtaku);
 		else sprite.setScale(skalaAtaku, skalaAtaku);
 	}
-
 	else if (obecnyStan == Stan::ATAK_1) {
 		sprite.setTexture(textureAtak);
 
@@ -73,6 +76,7 @@ void gracz::update() {
 					obecnyStan = Stan::ATAK_2;
 					AttackFrame = 0;
 					combo = false;
+					attackDamageDealt = false; // RESET FLAGI DLA COMBO
 				}
 				else {
 					obecnyStan = Stan::IDLE;
@@ -86,12 +90,11 @@ void gracz::update() {
 			ramka.top = 80;
 			ramka.width = 215;
 			ramka.height = 170;
-			ramka.left = 40 + (AttackFrame * 225); 
+			ramka.left = 40 + (AttackFrame * 225);
 			sprite.setOrigin(90.f, 120.f);
 		}
 		else {
 			ramka.top = 295;
-			ramka.left = 60;
 			ramka.width = 200;
 			ramka.height = 225;
 			ramka.left = (AttackFrame * 250);
@@ -116,13 +119,14 @@ void gracz::update() {
 					obecnyStan = Stan::ATAK_3;
 					AttackFrame = 0;
 					combo = false;
+					attackDamageDealt = false; // RESET FLAGI DLA COMBO
 				}
 				else {
 					obecnyStan = Stan::IDLE;
 					AttackFrame = 0;
 				}
 			}
-				attackClock.restart();
+			attackClock.restart();
 		}
 		ramka.top = 555;
 		ramka.left = 70;
@@ -139,9 +143,9 @@ void gracz::update() {
 
 		if (attackClock.getElapsedTime().asSeconds() > 0.2f) {
 			AttackFrame++;
-			if (AttackFrame >= 2) { 
-				obecnyStan = Stan::IDLE; 
-				AttackFrame = 0; 
+			if (AttackFrame >= 2) {
+				obecnyStan = Stan::IDLE;
+				AttackFrame = 0;
 			}
 			attackClock.restart();
 		}
@@ -151,7 +155,7 @@ void gracz::update() {
 		ramka.height = 220;
 		ramka.left = AttackFrame * 210;
 		sprite.setTextureRect(ramka);
-		sprite.setOrigin(70.f, 170.f); 
+		sprite.setOrigin(70.f, 170.f);
 	}
 	else {
 		sprite.setTexture(texture);
@@ -196,6 +200,7 @@ void gracz::update() {
 		}
 	}
 }
+
 void gracz::handleInput() {
 	lastMovement = sf::Vector2f(0.f, 0.f);
 	if (isAttacking()) return;
@@ -206,17 +211,20 @@ void gracz::handleInput() {
 		obecnyStan = Stan::ATAK_2;
 		attackClock.restart();
 		AttackFrame = 0;
+		attackDamageDealt = false; // NOWY ATAK
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::K) && obecnyStan == Stan::IDLE) {
 		obecnyStan = Stan::ATAK_3;
 		attackClock.restart();
 		AttackFrame = 0;
+		attackDamageDealt = false; // NOWY ATAK
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::J) && obecnyStan != Stan::ATAK_1) {
 		if (obecnyStan == Stan::IDLE || obecnyStan == Stan::BIEG) {
 			obecnyStan = Stan::ATAK_1;
 			attackClock.restart();
 			AttackFrame = 0;
+			attackDamageDealt = false; // NOWY ATAK
 		}
 		else if (obecnyStan == Stan::ATAK_1 || obecnyStan == Stan::ATAK_2) {
 			combo = true;
@@ -242,12 +250,13 @@ void gracz::handleInput() {
 		velocity = jumpSpeed;
 		czygleba = false;
 	}
-	
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && czygleba) {
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::J)) {
 			obecnyStan = Stan::ATAK_1;
 			attackClock.restart();
 			AttackFrame = 0;
+			attackDamageDealt = false; // NOWY ATAK
 		}
 		else {
 			obecnyStan = Stan::KUCANIE;
@@ -260,9 +269,11 @@ void gracz::handleInput() {
 
 	lastMovement = movement;
 }
+
 void gracz::ustawBariere(const tlo& mapa) {
 	this->mapaLimit = mapa.dlugosc;
 }
+
 sf::FloatRect gracz::getHitbox() const {
 	sf::FloatRect bounds = sprite.getGlobalBounds();
 	float width = 60.f;
@@ -280,6 +291,7 @@ sf::FloatRect gracz::getHitbox() const {
 
 	return sf::FloatRect(0, 0, 0, 0);
 }
+
 sf::FloatRect gracz::getBodyBounds() const {
 	sf::FloatRect fullBounds = sprite.getGlobalBounds();
 
@@ -298,9 +310,11 @@ sf::FloatRect gracz::getBodyBounds() const {
 
 	return sf::FloatRect(new_left, fullBounds.top, new_width, fullBounds.height);
 }
+
 bool gracz::isAttacking() const {
 	return (obecnyStan == Stan::ATAK_1 || obecnyStan == Stan::ATAK_2 || obecnyStan == Stan::ATAK_3);
 }
+
 void gracz::moveIfPossible(sf::Vector2f mov, const sf::FloatRect& obstacle) {
 	sf::FloatRect futureBounds = getBodyBounds();
 	futureBounds.left += mov.x;
@@ -309,5 +323,7 @@ void gracz::moveIfPossible(sf::Vector2f mov, const sf::FloatRect& obstacle) {
 		sprite.move(mov.x, 0);
 	}
 }
+
 sf::Vector2f gracz::getMovement() const {
-	return lastMovement; }
+	return lastMovement;
+}

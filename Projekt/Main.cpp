@@ -9,73 +9,90 @@
 #include "tlo.h"
 #include "bezdomny.h"
 #include <iostream>
+#include <vector>
 
 int main()
 {
-	// ustawienie okna
-	sf::RenderWindow window(sf::VideoMode(1920, 1080), "Moja gierka"); //sf::Style::Fullscreen
-	window.setFramerateLimit(60);
-	//background
-	tlo mapa1;
-	mapa1.seg("P:\\projekt\\Projekt\\Projekt\\begin.jpg");
-	tlo mapa2;
-	mapa2.seg("P:\\projekt\\Projekt\\Projekt\\background2.jpg");
-	mapa2.seg("P:\\projekt\\Projekt\\Projekt\\background.jpg");
-	//pod³o¿e
-	sf::RectangleShape ground(sf::Vector2f(mapa1.getDlugosc(), 500.f));
-	ground.setFillColor(sf::Color::Black);
-	ground.setPosition(0.f, 1000.f);
-	//inicjalizacja gracza
-	gracz player("Kiryu", 100, 3, "P:\\projekt\\Projekt\\Projekt\\kiryu.png", "P:\\projekt\\Projekt\\Projekt\\kiryuatak.png");
-	player.ustawBariere(mapa1);
-	sf::View camera(sf::FloatRect(0, 0, 1920, 1080));
-	float velocity = 5.f;
-	float gravity = 0.5f;
-	// respienie nowych przeciwników
-	bezdomny menel("P:\\projekt\\Projekt\\Projekt\\homeless_1\\Idle_2.png", sf::Vector2f(1300.f, 975.f));
+    // 1. Ustawienie okna
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Moja gierka");
+    window.setFramerateLimit(60);
 
-	//MaszynaStanow machine;
-	//sf::Clock clock;
+    // 2. T³o i pod³o¿e
+    tlo mapa1;
+    mapa1.seg("P:\\projekt\\Projekt\\Projekt\\begin.jpg");
+    tlo mapa2;
+    mapa2.seg("P:\\projekt\\Projekt\\Projekt\\background2.jpg");
+    mapa2.seg("P:\\projekt\\Projekt\\Projekt\\background.jpg");
 
-    // Odpalamy pierwszy stan (np. Menu)
-    //machine.addState(std::make_unique<MenuState>());
+    sf::RectangleShape ground(sf::Vector2f(mapa2.getDlugosc(), 500.f));
+    ground.setFillColor(sf::Color::Black);
+    ground.setPosition(0.f, 1000.f);
 
+    // 3. Inicjalizacja gracza
+    gracz player("Kiryu", 100, 3, "P:\\projekt\\Projekt\\Projekt\\kiryu.png", "P:\\projekt\\Projekt\\Projekt\\kiryuatak.png");
+    player.ustawBariere(mapa2);
+
+    sf::View camera(sf::FloatRect(0, 0, 1920, 1080));
+
+    // 4. Inicjalizacja wektora przeciwników
+    std::vector<std::unique_ptr<bezdomny>> menele;
+    menele.push_back(std::make_unique<bezdomny>("P:\\projekt\\Projekt\\Projekt\\homeless_1\\Idle_2.png", sf::Vector2f(1100.f, 975.f)));
     while (window.isOpen()) {
-			sf::Event event;
-			while (window.pollEvent(event))
-			{
-				if (event.type == sf::Event::Closed)
-					window.close();
-			}
-			player.handleInput();
-			player.moveIfPossible(player.getMovement(), menel.getBounds());
-			player.update();
-			menel.update();
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
 
-			if (player.isAttacking()) { 
-				if (player.getHitbox().intersects(menel.getBounds())) {
-					menel.takeDmg(10.f);
-				}
-			}
+        player.handleInput();
 
-			float cameraX = player.getPosition().x;
-			if (cameraX < 960.f) 
-				cameraX = 960.f;
+        sf::FloatRect aktualnaPrzeszkoda(0, 0, 0, 0);
 
-			if (cameraX > mapa1.getDlugosc() - 960.f) 
-				cameraX = mapa1.getDlugosc() - 960.f;
+        for (int i = 0; i < menele.size(); i++) {
+            menele[i]->update();
 
-			camera.setCenter(cameraX, 540);
-			ground.setPosition(cameraX - 960.f, 1000.f);
+            if (player.isAttacking() && !player.hasDealtDamage()) {
+                if (player.getHitbox().intersects(menele[i]->getBounds())) {
+                    menele[i]->takeDmg(10.f);
+                    player.setDamageDealt(true);
+                }
+            }
 
-			window.clear();
-			window.setView(camera);
+            if (!menele[i]->isDeadStatus()) {
+                if (player.getBodyBounds().intersects(menele[i]->getBounds())) {
+                    aktualnaPrzeszkoda = menele[i]->getBounds();
+                }
+            }
 
-			mapa1.draw(window);
-			window.draw(ground);
-			player.draw(window);
-			menel.draw(window);
-			window.display();
-		}
+            if (menele[i]->getRemoveStatus()) {
+                menele.erase(menele.begin() + i);
+                i--;
+                continue;
+            }
+        }
+
+        player.moveIfPossible(player.getMovement(), aktualnaPrzeszkoda);
+        player.update();
+
+        float cameraX = player.getPosition().x;
+        if (cameraX < 960.f) cameraX = 960.f;
+        if (cameraX > mapa1.getDlugosc() - 960.f) cameraX = mapa1.getDlugosc() - 960.f;
+
+        camera.setCenter(cameraX, 540);
+        ground.setPosition(cameraX - 960.f, 1000.f);
+
+        window.clear();
+        window.setView(camera);
+
+        mapa1.draw(window);
+        window.draw(ground);
+
+        for (auto& wrog : menele) {
+            wrog->draw(window);
+        }
+
+        player.draw(window);
+        window.display();
+    }
     return 0;
 }

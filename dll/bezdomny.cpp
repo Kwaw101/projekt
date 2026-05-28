@@ -2,7 +2,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 bezdomny::bezdomny(std::string fpath, sf::Vector2f pos) {
-
+    textureDead.loadFromFile("P:\\projekt\\Projekt\\Projekt\\homeless_1\\Dead.png");
     if (texture.loadFromFile(fpath)) {
         sprite.setTexture(texture);
         ramka = sf::IntRect(0, 0, 128, 128);
@@ -13,6 +13,23 @@ bezdomny::bezdomny(std::string fpath, sf::Vector2f pos) {
     }
 }
 void bezdomny::update() {
+    if (isDead) {
+        if (deadFrame < 3) {
+            if (deathAnimClock.getElapsedTime().asSeconds() > 0.15f) {
+                deadFrame++;
+                ramka.left = deadFrame * 128;
+                sprite.setTextureRect(ramka);
+                deathAnimClock.restart();
+            }
+        }
+        else {
+            if (deathAnimClock.getElapsedTime().asSeconds() > 3.0f) {
+                remove = true;
+            }
+        }
+        return;
+    }
+
     if (animClock.getElapsedTime().asSeconds() > 0.25f) {
         currentFrame++;
         if (currentFrame >= 10) currentFrame = 0;
@@ -28,10 +45,28 @@ void bezdomny::update() {
 }
 
 void bezdomny::takeDmg(float dmg) {
+    if (isDead) return;
+
     hp -= dmg;
     sprite.setColor(sf::Color::Red);
     red = true;
     hurtClock.restart();
+
+    if (hp <= 0) {
+        isDead = true;
+        deadFrame = 0;
+
+        if (textureDead.getSize().x == 0) {
+            textureDead.loadFromFile("P:\\projekt\\Projekt\\Projekt\\Dead.png");
+        }
+
+        sprite.setTexture(textureDead);
+        ramka.left = 0;
+        sprite.setTextureRect(ramka);
+
+        sprite.setColor(sf::Color::White);
+        deathAnimClock.restart();
+    }
 }
 
 void bezdomny::draw(sf::RenderWindow& window) {
