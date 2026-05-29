@@ -8,6 +8,7 @@
 #include "gracz.h"
 #include "tlo.h"
 #include "bezdomny.h"
+#include <enemy.h>
 #include <iostream>
 #include <vector>
 
@@ -35,8 +36,8 @@ int main()
     sf::View camera(sf::FloatRect(0, 0, 1920, 1080));
 
     // 4. Inicjalizacja wektora przeciwników
-    std::vector<std::unique_ptr<bezdomny>> menele;
-    menele.push_back(std::make_unique<bezdomny>("P:\\projekt\\Projekt\\Projekt\\homeless_1\\Idle_2.png", sf::Vector2f(1100.f, 975.f)));
+    std::vector<std::unique_ptr<bezdomny>> enemi;
+    enemi.push_back(std::make_unique<bezdomny>("P:\\projekt\\Projekt\\Projekt\\homeless_1\\Idle_2.png", sf::Vector2f(1100.f, 975.f)));
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -48,24 +49,41 @@ int main()
 
         sf::FloatRect aktualnaPrzeszkoda(0, 0, 0, 0);
 
-        for (int i = 0; i < menele.size(); i++) {
-            menele[i]->update();
+        for (int i = 0; i < enemi.size(); i++) {
+            enemy* ptrEnemy = dynamic_cast<enemy*>(enemi[i].get());
+
+            if (ptrEnemy) {
+                ptrEnemy->update(player.getPosition());
+
+                if (ptrEnemy->getIsAttacking() && !ptrEnemy->getHasDealtDamage()) {
+                    if (ptrEnemy->getCurrentFrame() == 3) {
+                        if (ptrEnemy->getBounds().intersects(player.getBodyBounds())) {
+                            player.takeDmg(ptrEnemy->getDamage());
+                            ptrEnemy->setHasDealtDamage(true);
+                        }
+                    }
+                }
+            }
+            else {
+                enemi[i]->update();
+            }
 
             if (player.isAttacking() && !player.hasDealtDamage()) {
-                if (player.getHitbox().intersects(menele[i]->getBounds())) {
-                    menele[i]->takeDmg(10.f);
+                if (player.getHitbox().intersects(enemi[i]->getBounds())) {
+                    float dmg = player.AD();
+                    enemi[i]->takeDmg(dmg);
                     player.setDamageDealt(true);
                 }
             }
 
-            if (!menele[i]->isDeadStatus()) {
-                if (player.getBodyBounds().intersects(menele[i]->getBounds())) {
-                    aktualnaPrzeszkoda = menele[i]->getBounds();
+            if (!enemi[i]->isDeadStatus()) {
+                if (player.getBodyBounds().intersects(enemi[i]->getBounds())) {
+                    aktualnaPrzeszkoda = enemi[i]->getBounds();
                 }
             }
 
-            if (menele[i]->getRemoveStatus()) {
-                menele.erase(menele.begin() + i);
+            if (enemi[i]->getRemoveStatus()) {
+                enemi.erase(enemi.begin() + i);
                 i--;
                 continue;
             }
@@ -87,7 +105,7 @@ int main()
         mapa1.draw(window);
         window.draw(ground);
 
-        for (auto& wrog : menele) {
+        for (auto& wrog : enemi) {
             wrog->draw(window);
         }
 

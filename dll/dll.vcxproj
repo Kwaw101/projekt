@@ -137,6 +137,7 @@ copy /Y "$(SolutionDir)x64\Debug\*lib" "P:\lib"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="bezdomny.h" />
+    <ClInclude Include="enemy.h" />
     <ClInclude Include="gracz.h" />
     <ClInclude Include="klasa.h" />
     <ClInclude Include="APi.h" />
@@ -146,6 +147,7 @@ copy /Y "$(SolutionDir)x64\Debug\*lib" "P:\lib"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bezdomny.cpp" />
+    <ClCompile Include="enemy.cpp" />
     <ClCompile Include="gracz.cpp" />
     <ClCompile Include="klasa.cpp" />
     <ClCompile Include="MaszynaStanow.cpp" />

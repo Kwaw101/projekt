@@ -46,4 +46,5 @@ public:
 	sf::Vector2f getMovement() const;
 	bool hasDealtDamage() const { return attackDamageDealt; }
 	void setDamageDealt(bool status) { attackDamageDealt = status; }
+	float AD() const;
 };

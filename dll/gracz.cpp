@@ -141,7 +141,7 @@ void gracz::update() {
 		float skalaAtaku = 1.25f;
 		sprite.setScale(sprite.getScale().x < 0 ? -skalaAtaku : skalaAtaku, skalaAtaku);
 
-		if (attackClock.getElapsedTime().asSeconds() > 0.2f) {
+		if (attackClock.getElapsedTime().asSeconds() > 0.3f) {
 			AttackFrame++;
 			if (AttackFrame >= 2) {
 				obecnyStan = Stan::IDLE;
@@ -326,4 +326,13 @@ void gracz::moveIfPossible(sf::Vector2f mov, const sf::FloatRect& obstacle) {
 
 sf::Vector2f gracz::getMovement() const {
 	return lastMovement;
+}
+float gracz::AD() const {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+		return 5.0f;
+	}
+	if (obecnyStan == Stan::ATAK_3) {
+		return 15.0f;
+	}
+	return 5.0f;
 }

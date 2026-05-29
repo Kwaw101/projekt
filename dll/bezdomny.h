@@ -18,7 +18,7 @@ protected:
     bool remove = false;
 public:
     bezdomny(std::string fpath, sf::Vector2f pos);
-    void update();
+    virtual void update();
     void draw(sf::RenderWindow& window);
     void takeDmg(float dmg);
     sf::FloatRect getBounds() const;
