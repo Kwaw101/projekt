@@ -1,0 +1,5 @@
+[W, A, D] - Movement
+[S] - Crouch
+[J, L] - Light attack
+[K] - Heavy attack
+[S + J] - Crouch attack

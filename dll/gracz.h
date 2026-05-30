@@ -8,7 +8,6 @@ private:
 	float speed = 5.f;
 	int maxHp;
 	int Hp;
-	int lifes;
 	std::string name;
 	sf::Sprite sprite;
 	sf::Texture texture;
@@ -31,12 +30,15 @@ private:
 	sf::Vector2f lastMovement;
 	bool attackDamageDealt = false;
 public:
-	gracz(std::string name, int maxHp, int lifes, std::string fpath, std::string fpathAtak);
-	void takeDmg(int x);
+	gracz(std::string name, int maxHp, std::string fpath, std::string fpathAtak);
+	int takeDmg(int x);
 	void printStatus() const;
 	void update();
 	void handleInput();
 	void draw(sf::RenderWindow& window);
+	void setPosition(float x, float y) {
+		sprite.setPosition(x, y);
+	}
 	sf::Vector2f getPosition();
 	void ustawBariere(const tlo& mapa);
 	sf::FloatRect getHitbox() const;

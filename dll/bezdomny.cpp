@@ -2,8 +2,8 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 bezdomny::bezdomny(std::string fpath, sf::Vector2f pos) {
-    textureDead.loadFromFile("P:\\projekt\\Projekt\\Projekt\\homeless_1\\Dead.png");
     if (texture.loadFromFile(fpath)) {
+        textureDead.loadFromFile("P:\\projekt\\Projekt\\Projekt\\homeless_1\\Dead.png");
         sprite.setTexture(texture);
         ramka = sf::IntRect(0, 0, 128, 128);
         sprite.setTextureRect(ramka);

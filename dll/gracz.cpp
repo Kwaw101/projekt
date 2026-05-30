@@ -3,8 +3,8 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
-gracz::gracz(std::string name, int hp, int lifes, std::string fpath, std::string fpathAtak) :
-	name(name), maxHp(hp), lifes(lifes), Hp(hp), currentFrame(0), AttackFrame(0), attackDamageDealt(false) {
+gracz::gracz(std::string name, int hp, std::string fpath, std::string fpathAtak) :
+	name(name), maxHp(hp), Hp(hp), currentFrame(0), AttackFrame(0), attackDamageDealt(false) {
 	if (texture.loadFromFile(fpath)) {
 		texture.setSmooth(false);
 		sprite.setTexture(texture);
@@ -20,13 +20,8 @@ gracz::gracz(std::string name, int hp, int lifes, std::string fpath, std::string
 	textureAtak.setSmooth(false);
 }
 
-void gracz::takeDmg(int dmg) {
-	if (Hp > dmg)
-		Hp -= dmg;
-	else {
-		Hp = maxHp;
-		lifes--;
-	}
+int gracz::takeDmg(int dmg) {
+	return Hp - dmg;
 }
 
 void gracz::draw(sf::RenderWindow& window) {
@@ -34,7 +29,7 @@ void gracz::draw(sf::RenderWindow& window) {
 }
 
 void gracz::printStatus() const {
-	std::cout << name << Hp << lifes;
+	std::cout << name << Hp;
 }
 
 sf::Vector2f gracz::getPosition() {

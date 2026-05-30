@@ -1,13 +1,15 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-class state
-{
+
+class __declspec(dllexport) state {
 public:
     virtual ~state() = default;
 
     virtual void init() = 0;
-    virtual void handleInput(sf::RenderWindow& window) = 0;
-    virtual void update(float deltaTime) = 0;
-    virtual void draw(sf::RenderWindow& window) = 0;
-};
+    virtual void handleInput() = 0;
+    virtual void update(float dt) = 0;
+    virtual void draw() = 0;
 
+    virtual void pause() {}
+    virtual void resume() {}
+};
